@@ -1,1 +1,826 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление гардеробом</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .categories {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        
+        .category {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+        }
+        
+        .category-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffcc00;
+        }
+        
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .arrow {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .arrow:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .image-placeholder {
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.5);
+            overflow: hidden;
+        }
+        
+        .image-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        
+        .image-placeholder.has-image {
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .image-placeholder.has-image .placeholder-text {
+            display: none;
+        }
+        
+        .image-placeholder.has-image img {
+            display: block;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            width: 90%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .modal-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            font-size: 1.8rem;
+        }
+        
+        .upload-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 40px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-container:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #ffcc00;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .category-select {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1.1rem;
+            margin: 20px 0;
+        }
+        
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .gallery-item {
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            aspect-ratio: 1/1;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .gallery-menu {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            padding: 20px;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .gallery-item.active .gallery-menu {
+            display: flex;
+        }
+        
+        .menu-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .menu-btn.delete {
+            background: rgba(231, 76, 60, 0.7);
+        }
+        
+        .menu-btn.delete:hover {
+            background: rgba(231, 76, 60, 0.9);
+        }
+        
+        .current-image-indicator {
+            text-align: center;
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @media (max-width: 768px) {
+            .image-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .image-placeholder {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Управление гардеробом</h1>
+            <p class="subtitle">Создайте свою коллекцию одежды и переключайтесь между элементами</p>
+        </header>
+        
+        <main>
+            <div class="categories">
+                <!-- Категория "Майки" -->
+                <div class="category">
+                    <h2 class="category-title">Майки</h2>
+                    <div class="image-container">
+                        <button class="arrow left">←</button>
+                        <div class="image-placeholder" id="tshirt-placeholder">
+                            <span class="placeholder-text">Нет изображения</span>
+                            <img src="" alt="Майка">
+                        </div>
+                        <button class="arrow right">→</button>
+                    </div>
+                    <div class="current-image-indicator">Изображение 1 из 1</div>
+                </div>
+                
+                <!-- Категория "Верхняя одежда" -->
+                <div class="category">
+                    <h2 class="category-title">Верхняя одежда</h2>
+                    <div class="image-container">
+                        <button class="arrow left">←</button>
+                        <div class="image-placeholder" id="outerwear-placeholder">
+                            <span class="placeholder-text">Нет изображения</span>
+                            <img src="" alt="Верхняя одежда">
+                        </div>
+                        <button class="arrow right">→</button>
+                    </div>
+                    <div class="current-image-indicator">Изображение 1 из 1</div>
+                </div>
+                
+                <!-- Категория "Штаны/Шорты" -->
+                <div class="category">
+                    <h2 class="category-title">Штаны/Шорты</h2>
+                    <div class="image-container">
+                        <button class="arrow left">←</button>
+                        <div class="image-placeholder" id="pants-placeholder">
+                            <span class="placeholder-text">Нет изображения</span>
+                            <img src="" alt="Штаны/Шорты">
+                        </div>
+                        <button class="arrow right">→</button>
+                    </div>
+                    <div class="current-image-indicator">Изображение 1 из 1</div>
+                </div>
+                
+                <!-- Категория "Кроссовки" -->
+                <div class="category">
+                    <h2 class="category-title">Кроссовки</h2>
+                    <div class="image-container">
+                        <button class="arrow left">←</button>
+                        <div class="image-placeholder" id="shoes-placeholder">
+                            <span class="placeholder-text">Нет изображения</span>
+                            <img src="" alt="Кроссовки">
+                        </div>
+                        <button class="arrow right">→</button>
+                    </div>
+                    <div class="current-image-indicator">Изображение 1 из 1</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="uploadBtn">Загрузить</button>
+                <button class="btn btn-secondary" id="galleryBtn">Галерея</button>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Ваш виртуальный гардероб всегда под рукой!</p>
+        </footer>
+    </div>
+    
+    <!-- Модальное окно загрузки -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeUploadModal">×</button>
+            <h2 class="modal-title">Загрузка изображения</h2>
+            
+            <div class="upload-container" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <p>Нажмите, чтобы выбрать файл или перетащите его сюда</p>
+                <input type="file" class="file-input" id="fileInput" accept="image/*">
+            </div>
+            
+            <select class="category-select" id="categorySelect">
+                <option value="" disabled selected>Выберите категорию одежды</option>
+                <option value="tshirt">Майки</option>
+                <option value="outerwear">Верхняя одежда</option>
+                <option value="pants">Штаны/Шорты</option>
+                <option value="shoes">Кроссовки</option>
+            </select>
+            
+            <button class="btn" id="saveBtn" disabled>Сохранить изображение</button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно галереи -->
+    <div class="modal" id="galleryModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeGalleryModal">×</button>
+            <h2 class="modal-title">Галерея изображений</h2>
+            
+            <div class="gallery-container" id="galleryContainer">
+                <!-- Галерея будет заполнена через JavaScript -->
+            </div>
+        </div>
+    </div>
 
+    <script>
+        // Данные приложения
+        const wardrobe = {
+            tshirt: [],
+            outerwear: [],
+            pants: [],
+            shoes: [],
+            allItems: [],
+            currentIndexes: {
+                tshirt: 0,
+                outerwear: 0,
+                pants: 0,
+                shoes: 0
+            }
+        };
+        
+        // DOM элементы
+        const elements = {
+            uploadModal: document.getElementById('uploadModal'),
+            galleryModal: document.getElementById('galleryModal'),
+            closeUploadModal: document.getElementById('closeUploadModal'),
+            closeGalleryModal: document.getElementById('closeGalleryModal'),
+            uploadBtn: document.getElementById('uploadBtn'),
+            galleryBtn: document.getElementById('galleryBtn'),
+            uploadArea: document.getElementById('uploadArea'),
+            fileInput: document.getElementById('fileInput'),
+            categorySelect: document.getElementById('categorySelect'),
+            saveBtn: document.getElementById('saveBtn'),
+            galleryContainer: document.getElementById('galleryContainer'),
+            placeholders: {
+                tshirt: document.getElementById('tshirt-placeholder'),
+                outerwear: document.getElementById('outerwear-placeholder'),
+                pants: document.getElementById('pants-placeholder'),
+                shoes: document.getElementById('shoes-placeholder')
+            },
+            indicators: document.querySelectorAll('.current-image-indicator')
+        };
+        
+        // Инициализация приложения
+        function init() {
+            setupEventListeners();
+            loadSampleImages();
+            updateIndicators();
+        }
+        
+        // Загрузка примеров изображений
+        function loadSampleImages() {
+            const sampleImages = [
+                { id: 1, category: 'tshirt', name: 'Черная майка', url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80' },
+                { id: 2, category: 'tshirt', name: 'Белая майка', url: 'https://images.unsplash.com/photo-1523381294911-8d3cead13475?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80' },
+                { id: 3, category: 'outerwear', name: 'Куртка', url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80' },
+                { id: 4, category: 'pants', name: 'Джинсы', url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80' },
+                { id: 5, category: 'shoes', name: 'Кроссовки', url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80' }
+            ];
+            
+            sampleImages.forEach(img => {
+                addImageToWardrobe(img);
+            });
+            
+            // Обновляем отображение
+            updateAllCategoryDisplays();
+        }
+        
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Кнопки открытия модальных окон
+            elements.uploadBtn.addEventListener('click', () => elements.uploadModal.style.display = 'flex');
+            elements.galleryBtn.addEventListener('click', openGallery);
+            
+            // Кнопки закрытия модальных окон
+            elements.closeUploadModal.addEventListener('click', () => elements.uploadModal.style.display = 'none');
+            elements.closeGalleryModal.addEventListener('click', () => elements.galleryModal.style.display = 'none');
+            
+            // Загрузка файлов
+            elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
+            elements.fileInput.addEventListener('change', handleFileSelect);
+            
+            // Сохранение изображения
+            elements.saveBtn.addEventListener('click', saveImage);
+            
+            // Переключение изображений стрелками
+            document.querySelectorAll('.arrow').forEach(arrow => {
+                arrow.addEventListener('click', function() {
+                    const category = this.closest('.category').querySelector('.category-title').textContent.toLowerCase();
+                    const categoryKey = getCategoryKey(category);
+                    const direction = this.classList.contains('left') ? -1 : 1;
+                    
+                    navigateImages(categoryKey, direction);
+                });
+            });
+            
+            // Закрытие модальных окон при клике вне области
+            window.addEventListener('click', (e) => {
+                if (e.target === elements.uploadModal) elements.uploadModal.style.display = 'none';
+                if (e.target === elements.galleryModal) elements.galleryModal.style.display = 'none';
+            });
+        }
+        
+        // Обработка выбора файла
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.match('image.*')) {
+                alert('Пожалуйста, выберите файл изображения');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                elements.uploadArea.innerHTML = `
+                    <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 10px;">
+                    <p>${file.name}</p>
+                `;
+                elements.saveBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Сохранение изображения
+        function saveImage() {
+            const category = elements.categorySelect.value;
+            if (!category) {
+                alert('Пожалуйста, выберите категорию одежды');
+                return;
+            }
+            
+            const file = elements.fileInput.files[0];
+            if (!file) {
+                alert('Пожалуйста, выберите файл');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const newImage = {
+                    id: Date.now(),
+                    category: category,
+                    name: file.name,
+                    url: e.target.result
+                };
+                
+                addImageToWardrobe(newImage);
+                updateCategoryDisplay(category);
+                
+                // Сброс формы
+                elements.fileInput.value = '';
+                elements.categorySelect.value = '';
+                elements.saveBtn.disabled = true;
+                elements.uploadArea.innerHTML = `
+                    <div class="upload-icon">📁</div>
+                    <p>Нажмите, чтобы выбрать файл или перетащите его сюда</p>
+                `;
+                
+                elements.uploadModal.style.display = 'none';
+                alert('Изображение успешно сохранено!');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Добавление изображения в гардероб
+        function addImageToWardrobe(image) {
+            wardrobe[image.category].push(image);
+            wardrobe.allItems.push(image);
+        }
+        
+        // Обновление отображения категории
+        function updateCategoryDisplay(category) {
+            const items = wardrobe[category];
+            const placeholder = elements.placeholders[category];
+            const currentIndex = wardrobe.currentIndexes[category];
+            
+            if (items.length === 0) {
+                placeholder.classList.remove('has-image');
+                placeholder.querySelector('.placeholder-text').style.display = 'block';
+                placeholder.querySelector('img').style.display = 'none';
+                return;
+            }
+            
+            const currentItem = items[currentIndex];
+            placeholder.classList.add('has-image');
+            placeholder.querySelector('img').src = currentItem.url;
+            placeholder.querySelector('img').alt = currentItem.name;
+            placeholder.querySelector('.placeholder-text').style.display = 'none';
+            
+            updateIndicators();
+        }
+        
+        // Обновление всех категорий
+        function updateAllCategoryDisplays() {
+            updateCategoryDisplay('tshirt');
+            updateCategoryDisplay('outerwear');
+            updateCategoryDisplay('pants');
+            updateCategoryDisplay('shoes');
+        }
+        
+        // Переключение изображений
+        function navigateImages(category, direction) {
+            const items = wardrobe[category];
+            if (items.length === 0) return;
+            
+            let newIndex = wardrobe.currentIndexes[category] + direction;
+            
+            if (newIndex < 0) {
+                newIndex = items.length - 1;
+            } else if (newIndex >= items.length) {
+                newIndex = 0;
+            }
+            
+            wardrobe.currentIndexes[category] = newIndex;
+            updateCategoryDisplay(category);
+        }
+        
+        // Открытие галереи
+        function openGallery() {
+            elements.galleryContainer.innerHTML = '';
+            
+            if (wardrobe.allItems.length === 0) {
+                elements.galleryContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Галерея пуста</p>';
+                elements.galleryModal.style.display = 'flex';
+                return;
+            }
+            
+            wardrobe.allItems.forEach(item => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.dataset.id = item.id;
+                
+                galleryItem.innerHTML = `
+                    <img src="${item.url}" alt="${item.name}">
+                    <div class="gallery-menu">
+                        <button class="menu-btn change-category">Поменять класс</button>
+                        <button class="menu-btn delete">Удалить</button>
+                        <button class="menu-btn cancel">Отмена</button>
+                    </div>
+                `;
+                
+                galleryItem.querySelector('img').addEventListener('click', () => {
+                    galleryItem.classList.add('active');
+                });
+                
+                galleryItem.querySelector('.change-category').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    changeItemCategory(item.id);
+                });
+                
+                galleryItem.querySelector('.delete').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteItem(item.id);
+                });
+                
+                galleryItem.querySelector('.cancel').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    galleryItem.classList.remove('active');
+                });
+                
+                elements.galleryContainer.appendChild(galleryItem);
+            });
+            
+            elements.galleryModal.style.display = 'flex';
+        }
+        
+        // Изменение категории элемента
+        function changeItemCategory(itemId) {
+            const item = wardrobe.allItems.find(i => i.id == itemId);
+            if (!item) return;
+            
+            const newCategory = prompt(`Текущая категория: ${getCategoryName(item.category)}\nВведите новую категорию (tshirt, outerwear, pants, shoes):`, item.category);
+            
+            if (newCategory && ['tshirt', 'outerwear', 'pants', 'shoes'].includes(newCategory)) {
+                // Удаляем из старой категории
+                const oldCategory = item.category;
+                wardrobe[oldCategory] = wardrobe[oldCategory].filter(i => i.id !== itemId);
+                
+                // Добавляем в новую категорию
+                item.category = newCategory;
+                wardrobe[newCategory].push(item);
+                
+                // Обновляем отображение
+                updateCategoryDisplay(oldCategory);
+                updateCategoryDisplay(newCategory);
+                
+                alert('Категория успешно изменена!');
+                openGallery(); // Обновляем галерею
+            } else if (newCategory) {
+                alert('Некорректное название категории');
+            }
+        }
+        
+        // Удаление элемента
+        function deleteItem(itemId) {
+            if (!confirm('Вы уверены, что хотите удалить это изображение?')) return;
+            
+            const item = wardrobe.allItems.find(i => i.id == itemId);
+            if (!item) return;
+            
+            // Удаляем из категории
+            wardrobe[item.category] = wardrobe[item.category].filter(i => i.id !== itemId);
+            
+            // Удаляем из общего списка
+            wardrobe.allItems = wardrobe.allItems.filter(i => i.id !== itemId);
+            
+            // Обновляем отображение
+            updateCategoryDisplay(item.category);
+            openGallery(); // Обновляем галерею
+        }
+        
+        // Обновление индикаторов текущего изображения
+        function updateIndicators() {
+            elements.indicators.forEach(indicator => {
+                const category = indicator.closest('.category').querySelector('.category-title').textContent.toLowerCase();
+                const categoryKey = getCategoryKey(category);
+                const items = wardrobe[categoryKey];
+                const currentIndex = wardrobe.currentIndexes[categoryKey];
+                
+                if (items.length > 0) {
+                    indicator.textContent = `Изображение ${currentIndex + 1} из ${items.length}`;
+                } else {
+                    indicator.textContent = 'Нет изображений';
+                }
+            });
+        }
+        
+        // Вспомогательные функции
+        function getCategoryKey(categoryName) {
+            const mapping = {
+                'майки': 'tshirt',
+                'верхняя одежда': 'outerwear',
+                'штаны/шорты': 'pants',
+                'кроссовки': 'shoes'
+            };
+            
+            return mapping[categoryName.toLowerCase()] || categoryName;
+        }
+        
+        function getCategoryName(categoryKey) {
+            const mapping = {
+                'tshirt': 'Майки',
+                'outerwear': 'Верхняя одежда',
+                'pants': 'Штаны/Шорты',
+                'shoes': 'Кроссовки'
+            };
+            
+            return mapping[categoryKey] || categoryKey;
+        }
+        
+        // Запуск приложения
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
