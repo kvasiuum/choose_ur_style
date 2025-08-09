@@ -395,6 +395,18 @@
             background: rgba(231, 76, 60, 0.9);
         }
         
+        .sample-tag {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 122, 255, 0.8);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            z-index: 2;
+        }
+        
         /* Адаптация под iOS устройства */
         @media (max-width: 768px) {
             .container {
@@ -476,8 +488,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Подбор шмота </h1>
-            <p class="subtitle">онлайн</p>
+            <h1>Гардероб</h1>
+            <p class="subtitle">Создайте свой виртуальный шкаф</p>
         </header>
         
         <main>
@@ -631,10 +643,10 @@
         // Загрузка примеров изображений
         function loadSampleImages() {
             const sampleImages = [
-                { id: 1, category: 'outerwear', name: 'Куртка', url: '' },
-                { id: 2, category: 'tshirt', name: 'Черная майка', url: '' },
-                { id: 3, category: 'pants', name: 'Джинсы', url: '' },
-                { id: 4, category: 'shoes', name: 'Кроссовки', url: '' }
+                { id: 1, category: 'outerwear', name: 'Куртка', url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
+                { id: 2, category: 'tshirt', name: 'Черная майка', url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
+                { id: 3, category: 'pants', name: 'Джинсы', url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
+                { id: 4, category: 'shoes', name: 'Кроссовки', url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true }
             ];
             
             sampleImages.forEach(img => {
@@ -721,8 +733,14 @@
                     id: Date.now(),
                     category: category,
                     name: file.name,
-                    url: e.target.result
+                    url: e.target.result,
+                    isSample: false
                 };
+                
+                // Удаляем сэмплы при добавлении первой пользовательской фотки
+                if (wardrobe[category].length > 0 && wardrobe[category].every(img => img.isSample)) {
+                    wardrobe[category] = [];
+                }
                 
                 addImageToWardrobe(newImage);
                 updateCategoryDisplay(category);
@@ -744,7 +762,9 @@
         // Добавление изображения в гардероб
         function addImageToWardrobe(image) {
             wardrobe[image.category].push(image);
-            wardrobe.allItems.push(image);
+            if (!image.isSample) {
+                wardrobe.allItems.push(image);
+            }
         }
         
         // Обновление отображения категории
@@ -757,6 +777,9 @@
                 placeholder.classList.remove('has-image');
                 placeholder.querySelector('.placeholder-text').style.display = 'block';
                 placeholder.querySelector('img').style.display = 'none';
+                
+                // Добавляем сэмпл, если категория пуста
+                addSampleIfEmpty(category);
                 return;
             }
             
@@ -767,6 +790,21 @@
             placeholder.querySelector('.placeholder-text').style.display = 'none';
             
             updateIndicators();
+        }
+        
+        // Добавление сэмпла, если категория пуста
+        function addSampleIfEmpty(category) {
+            const sampleData = {
+                outerwear: { id: -1, name: 'Пример куртки', url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
+                tshirt: { id: -2, name: 'Пример майки', url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
+                pants: { id: -3, name: 'Пример штанов', url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
+                shoes: { id: -4, name: 'Пример кроссовок', url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true }
+            };
+            
+            if (wardrobe[category].length === 0 && sampleData[category]) {
+                addImageToWardrobe(sampleData[category]);
+                updateCategoryDisplay(category);
+            }
         }
         
         // Обновление всех категорий
@@ -798,13 +836,16 @@
         function openGallery() {
             elements.galleryContainer.innerHTML = '';
             
-            if (wardrobe.allItems.length === 0) {
+            // Показываем только пользовательские изображения
+            const userImages = wardrobe.allItems.filter(item => !item.isSample);
+            
+            if (userImages.length === 0) {
                 elements.galleryContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; padding: 30px;">Галерея пуста</p>';
                 elements.galleryModal.style.display = 'flex';
                 return;
             }
             
-            wardrobe.allItems.forEach(item => {
+            userImages.forEach(item => {
                 const galleryItem = document.createElement('div');
                 galleryItem.className = 'gallery-item';
                 galleryItem.dataset.id = item.id;
@@ -859,6 +900,11 @@
                 item.category = newCategory;
                 wardrobe[newCategory].push(item);
                 
+                // Проверяем, нужно ли добавить сэмпл в старую категорию
+                if (wardrobe[oldCategory].length === 0) {
+                    addSampleIfEmpty(oldCategory);
+                }
+                
                 // Обновляем отображение
                 updateCategoryDisplay(oldCategory);
                 updateCategoryDisplay(newCategory);
@@ -876,15 +922,24 @@
             const item = wardrobe.allItems.find(i => i.id == itemId);
             if (!item) return;
             
+            const category = item.category;
+            
             // Удаляем из категории
-            wardrobe[item.category] = wardrobe[item.category].filter(i => i.id !== itemId);
+            wardrobe[category] = wardrobe[category].filter(i => i.id !== itemId);
             
             // Удаляем из общего списка
             wardrobe.allItems = wardrobe.allItems.filter(i => i.id !== itemId);
             
             // Обновляем отображение
-            updateCategoryDisplay(item.category);
-            openGallery(); // Обновляем галерею
+            updateCategoryDisplay(category);
+            
+            // Проверяем, нужно ли добавить сэмпл
+            if (wardrobe[category].length === 0) {
+                addSampleIfEmpty(category);
+            }
+            
+            // Обновляем галерею
+            openGallery();
         }
         
         // Обновление индикаторов текущего изображения
@@ -896,7 +951,14 @@
                 const currentIndex = wardrobe.currentIndexes[categoryKey];
                 
                 if (items.length > 0) {
-                    indicator.textContent = `Изображение ${currentIndex + 1} из ${items.length}`;
+                    const sampleCount = items.filter(item => item.isSample).length;
+                    const userCount = items.length - sampleCount;
+                    
+                    if (userCount > 0) {
+                        indicator.textContent = `Изображение ${currentIndex + 1} из ${items.length}`;
+                    } else {
+                        indicator.textContent = 'Пример изображения';
+                    }
                 } else {
                     indicator.textContent = 'Нет изображений';
                 }
