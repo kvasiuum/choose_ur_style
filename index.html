@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Гардероб iOS</title>
+    <title>Сбор аутфита онлайн</title>
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👕</text></svg>">
     <style>
         /* iOS оптимизация */
@@ -643,10 +643,34 @@
         // Загрузка примеров изображений
         function loadSampleImages() {
             const sampleImages = [
-                { id: 1, category: 'outerwear', name: 'Куртка', url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6Xp1sxfAnnsOZEAC4PJYYW9z3NqsTkYcntw&ssrsltid=AfmBOopUOyo9wCPdN6kmtlnI4wSgctkdg2XymgEIyRoBG0tXSSntKI0n#ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
-                { id: 2, category: 'tshirt', name: 'Черная майка', url: 'https://y2kdream.com/cdn/shop/files/Y2K-E-Eternal-T-Shirt.webp?v=1718745505&width=800ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
-                { id: 3, category: 'pants', name: 'Джинсы', url: 'https://ae04.alicdn.com/kf/S256e1ba10ce3470a855fb1e981e7bd67c.jpg_480x480.jpg480x480.jpgixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
-                { id: 4, category: 'shoes', name: 'Кроссовки', url: 'https://img.brandshop.ru/cache/products/f/fz4618-001-0_1104x1104.webpixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true }
+                { 
+                    id: 1, 
+                    category: 'outerwear', 
+                    name: 'Куртка', 
+                    url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                },
+                { 
+                    id: 2, 
+                    category: 'tshirt', 
+                    name: 'Черная майка', 
+                    url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                },
+                { 
+                    id: 3, 
+                    category: 'pants', 
+                    name: 'Джинсы', 
+                    url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                },
+                { 
+                    id: 4, 
+                    category: 'shoes', 
+                    name: 'Кроссовки', 
+                    url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                }
             ];
             
             sampleImages.forEach(img => {
@@ -795,10 +819,30 @@
         // Добавление сэмпла, если категория пуста
         function addSampleIfEmpty(category) {
             const sampleData = {
-                outerwear: { id: -1, name: 'Пример куртки', url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6Xp1sxfAnnsOZEAC4PJYYW9z3NqsTkYcntw&ssrsltid=AfmBOopUOyo9wCPdN6kmtlnI4wSgctkdg2XymgEIyRoBG0tXSSntKI0n#ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
-                tshirt: { id: -2, name: 'Пример майки', url: 'https://y2kdream.com/cdn/shop/files/Y2K-E-Eternal-T-Shirt.webp?v=1718745505&width=800ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
-                pants: { id: -3, name: 'Пример штанов', url: 'https://ae04.alicdn.com/kf/S256e1ba10ce3470a855fb1e981e7bd67c.jpg_480x480.jpg480x480.jpgixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true },
-                shoes: { id: -4, name: 'Пример кроссовок', url: 'https://img.brandshop.ru/cache/products/f/fz4618-001-0_1104x1104.webpixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80', isSample: true }
+                outerwear: { 
+                    id: -1, 
+                    name: 'Пример куртки', 
+                    url: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                },
+                tshirt: { 
+                    id: -2, 
+                    name: 'Пример майки', 
+                    url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                },
+                pants: { 
+                    id: -3, 
+                    name: 'Пример штанов', 
+                    url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                },
+                shoes: { 
+                    id: -4, 
+                    name: 'Пример кроссовок', 
+                    url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80', 
+                    isSample: true 
+                }
             };
             
             if (wardrobe[category].length === 0 && sampleData[category]) {
